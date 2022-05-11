@@ -1,4 +1,4 @@
-package com.esaudev.memorygame.ui
+package com.esaudev.memorygame.ui.util
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import com.esaudev.memorygame.R
 import com.esaudev.memorygame.databinding.ItemCardBinding
 import com.esaudev.memorygame.model.CR7Card
-import java.util.*
 
 class CardListAdapter(
 

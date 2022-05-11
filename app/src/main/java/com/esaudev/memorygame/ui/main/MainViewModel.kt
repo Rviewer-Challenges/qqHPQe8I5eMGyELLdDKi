@@ -1,5 +1,7 @@
-package com.esaudev.memorygame.ui
+package com.esaudev.memorygame.ui.main
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,9 +10,7 @@ import com.esaudev.memorygame.R
 import com.esaudev.memorygame.StringUtils
 import com.esaudev.memorygame.model.CR7Card
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.logging.Handler
 import javax.inject.Inject
 
 @HiltViewModel
@@ -95,7 +95,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
             if (firstCardSelected != null && secondCardSelected != null) {
                 _gamePaused.value = true
                 _pairFounded.value = firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator
-                android.os.Handler().postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     if (firstCardSelected!!.cardIndicator != secondCardSelected!!.cardIndicator) {
                         actionGameList[actionGameList.indexOf(firstCardSelected)].founded = false
                         actionGameList[actionGameList.indexOf(secondCardSelected)].founded = false

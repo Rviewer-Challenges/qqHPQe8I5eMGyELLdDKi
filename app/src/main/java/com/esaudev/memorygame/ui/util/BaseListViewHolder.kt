@@ -1,4 +1,4 @@
-package com.esaudev.memorygame.ui
+package com.esaudev.memorygame.ui.util
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

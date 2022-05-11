@@ -1,25 +1,16 @@
-package com.esaudev.memorygame.ui
+package com.esaudev.memorygame.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.esaudev.memorygame.R
-import com.esaudev.memorygame.StringUtils
 import com.esaudev.memorygame.databinding.ActivityMainBinding
-import com.esaudev.memorygame.model.CR7Card
+import com.esaudev.memorygame.ui.util.CardListAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.suspendCoroutine
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
