@@ -66,9 +66,9 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.pairFounded.observe(this) { pairFounded ->
             if (pairFounded) {
-                Toast.makeText(this, "Encontraste un par!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "¡Encontraste un par SIUUUU!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Sigue buscando!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "¡Sigue buscando!", Toast.LENGTH_SHORT).show()
             }
         }
     }
