@@ -40,8 +40,10 @@ class CardListAdapter(
             }
 
             ivCard.setOnClickListener {
-                onCardClickListener?.let { click ->
-                    click(item)
+                if (!item.founded) {
+                    onCardClickListener?.let { click ->
+                        click(item)
+                    }
                 }
             }
         }
