@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esaudev.memorygame.databinding.ActivityMainBinding
+import com.esaudev.memorygame.ui.components.GameLostDialogFragment
+import com.esaudev.memorygame.ui.components.GameWonDialogFragment
 import com.esaudev.memorygame.ui.util.CardListAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,6 +42,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initObservers() {
+        viewModel.countDownTime.observe(this) {
+            binding.tvTimer.text = it
+        }
+        viewModel.playerHasWon.observe(this) { playerHasWon ->
+            if (playerHasWon) {
+                val dialog = GameWonDialogFragment()
+                dialog.onRestartClick = {
+                    viewModel.startGame()
+                }
+                dialog.isCancelable = false
+                dialog.show(supportFragmentManager, "game_won_dialog")
+            }
+        }
+        viewModel.hasTimerEnded.observe(this) { playerHasLost ->
+            if (playerHasLost) {
+                val dialog = GameLostDialogFragment()
+                dialog.onRestartClick = {
+                    viewModel.startGame()
+                }
+                dialog.isCancelable = false
+                dialog.show(supportFragmentManager, "game_lost_dialog")
+            }
+        }
         viewModel.gameList.observe(this) {
             Log.d("CR7", "Observer triggered")
             cardListAdapter.submitList(it.toMutableList())

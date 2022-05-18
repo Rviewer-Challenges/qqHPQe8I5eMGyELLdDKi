@@ -1,5 +1,6 @@
 package com.esaudev.memorygame.ui.main
 
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
@@ -28,13 +29,32 @@ class MainViewModel @Inject constructor(): ViewModel() {
     val pairFounded : LiveData<Boolean>
         get() = _pairFounded
 
+    private var _countDownTime = MutableLiveData<String>()
+    val countDownTime: LiveData<String> = _countDownTime
+
+    private var _hasTimerEnded = MutableLiveData(false)
+    val hasTimerEnded : LiveData<Boolean> = _hasTimerEnded
+
+    private var _playerHasWon = MutableLiveData(false)
+    val playerHasWon: LiveData<Boolean> = _playerHasWon
+
+    private var _isTimerPaused = MutableLiveData(false)
+    val isTimerPaused : LiveData<Boolean> = _isTimerPaused
+
     private var turnActive: Boolean = true
     private var firstCardSelected: CR7Card? = null
     private var secondCardSelected: CR7Card? = null
 
     private var actionGameList: MutableList<CR7Card> = mutableListOf()
 
+    private val defaultStartTime = 80000L
+    var resumeFromMillis: Long = 0L
+
     init {
+       startGame()
+    }
+
+    fun startGame() {
         val cardList = mutableListOf(
             CR7Card(
                 image = R.drawable.cr7_1,
@@ -76,6 +96,40 @@ class MainViewModel @Inject constructor(): ViewModel() {
         _gameList.value = (cardList + auxList).shuffled()
         _gamePaused.value = false
         actionGameList = _gameList.value!!.toMutableList()
+
+        restartTimer()
+    }
+
+    private fun timer(millisInFuture:Long,countDownInterval:Long = 1000):CountDownTimer{
+        return object: CountDownTimer(millisInFuture,countDownInterval){
+            override fun onTick(millisUntilFinished: Long){
+
+                if (_isTimerPaused.value == true) {
+                    resumeFromMillis = millisUntilFinished
+                    cancel()
+                } else {
+                    val minutes = if ((millisUntilFinished / 1000 / 60) > 9) "${millisUntilFinished / 1000 / 60}"
+                    else "0${millisUntilFinished / 1000 / 60}"
+                    val seconds = if ((millisUntilFinished / 1000 % 60) > 9) "${millisUntilFinished / 1000 % 60}"
+                    else "0${millisUntilFinished / 1000 % 60}"
+
+                    _countDownTime.value = "$minutes:$seconds"
+                }
+            }
+
+            override fun onFinish() {
+                _hasTimerEnded.value = true
+            }
+        }
+    }
+
+    fun pauseTimer() {
+        _isTimerPaused.value = true
+    }
+
+    fun restartTimer() {
+        _isTimerPaused.value = false
+        timer(defaultStartTime).start()
     }
 
     fun performAction(cardSelected: CR7Card) {
@@ -104,9 +158,18 @@ class MainViewModel @Inject constructor(): ViewModel() {
                     firstCardSelected = null
                     secondCardSelected = null
                     _gamePaused.value = false
-                }, 2000)
+
+                    if (allCardsFounded(_gameList.value!!)) {
+                        _playerHasWon.value = true
+                        pauseTimer()
+                    }
+                }, 1500)
             }
         }
+    }
+
+    private fun allCardsFounded(cards: List<CR7Card>): Boolean {
+        return cards.filter { it.founded }.size == cards.size
     }
 
 }
