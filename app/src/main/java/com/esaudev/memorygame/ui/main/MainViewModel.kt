@@ -47,7 +47,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
     private var actionGameList: MutableList<CR7Card> = mutableListOf()
 
-    private val defaultStartTime = 80000L
+    private val defaultStartTime = 10000L
     var resumeFromMillis: Long = 0L
 
     init {
@@ -129,6 +129,8 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
     fun restartTimer() {
         _isTimerPaused.value = false
+        _playerHasWon.value = false
+        _hasTimerEnded.value = false
         timer(defaultStartTime).start()
     }
 

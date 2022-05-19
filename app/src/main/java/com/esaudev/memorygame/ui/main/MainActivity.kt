@@ -23,13 +23,22 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    private lateinit var dialogGameWon: GameWonDialogFragment
+    private lateinit var dialogGameLost: GameLostDialogFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initDialogs()
         initRecyclerView()
         initObservers()
+    }
+
+    private fun initDialogs() {
+        dialogGameWon = GameWonDialogFragment()
+        dialogGameLost = GameLostDialogFragment()
     }
 
     private fun initRecyclerView() {
@@ -47,22 +56,24 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.playerHasWon.observe(this) { playerHasWon ->
             if (playerHasWon) {
-                val dialog = GameWonDialogFragment()
-                dialog.onRestartClick = {
+                dialogGameWon.onRestartClick = {
                     viewModel.startGame()
                 }
-                dialog.isCancelable = false
-                dialog.show(supportFragmentManager, "game_won_dialog")
+                dialogGameWon.isCancelable = false
+                if (!dialogGameWon.isAdded) {
+                    dialogGameWon.show(supportFragmentManager, "game_won_dialog")
+                }
             }
         }
         viewModel.hasTimerEnded.observe(this) { playerHasLost ->
             if (playerHasLost) {
-                val dialog = GameLostDialogFragment()
-                dialog.onRestartClick = {
+                dialogGameLost.onRestartClick = {
                     viewModel.startGame()
                 }
-                dialog.isCancelable = false
-                dialog.show(supportFragmentManager, "game_lost_dialog")
+                dialogGameLost.isCancelable = false
+                if (!dialogGameLost.isAdded) {
+                    dialogGameLost.show(supportFragmentManager, "game_lost_dialog")
+                }
             }
         }
         viewModel.gameList.observe(this) {
@@ -89,4 +100,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        if (dialogGameWon.isAdded) {
+            dialogGameWon.dismiss()
+        }
+
+        if (dialogGameLost.isAdded) {
+            dialogGameLost.dismiss()
+        }
+        super.onPause()
+    }
 }
