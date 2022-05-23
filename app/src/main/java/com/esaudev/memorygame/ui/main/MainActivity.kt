@@ -77,19 +77,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
         viewModel.gameList.observe(this) {
+            cardListAdapter.counter = 0
             Log.d("CR7", "Observer triggered")
             cardListAdapter.submitList(it.toMutableList())
             cardListAdapter.notifyDataSetChanged()
         }
         viewModel.gamePaused.observe(this) { gamePaused ->
             if (gamePaused) {
-                cardListAdapter.setOnCardClickListener {  }
+                cardListAdapter.counter += 1
+                cardListAdapter.setOnCardClickListener {
+                    cardListAdapter.counter += 1
+                }
             } else {
+                cardListAdapter.counter += 1
                 cardListAdapter.setOnCardClickListener {
                     Log.d("CR7", "Card click triggered")
-                    viewModel.performAction(cardSelected = it)
+                    viewModel.performActionWithAnimation(cardSelected = it)
                 }
             }
+
         }
         viewModel.pairFounded.observe(this) { pairFounded ->
             if (pairFounded) {

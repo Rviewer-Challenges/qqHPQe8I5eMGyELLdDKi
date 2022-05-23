@@ -47,7 +47,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
     private var actionGameList: MutableList<CR7Card> = mutableListOf()
 
-    private val defaultStartTime = 10000L
+    private val defaultStartTime = 80000L
     var resumeFromMillis: Long = 0L
 
     init {
@@ -131,9 +131,50 @@ class MainViewModel @Inject constructor(): ViewModel() {
         _isTimerPaused.value = false
         _playerHasWon.value = false
         _hasTimerEnded.value = false
+        turnActive = true
+        firstCardSelected = null
+        secondCardSelected = null
         timer(defaultStartTime).start()
     }
 
+    fun performActionWithAnimation(cardSelected: CR7Card) {
+        actionGameList = _gameList.value!!.toMutableList()
+        viewModelScope.launch {
+            if(turnActive) {
+                firstCardSelected = cardSelected
+                actionGameList[actionGameList.indexOf(firstCardSelected)].founded = !actionGameList[actionGameList.indexOf(firstCardSelected)].founded
+                turnActive = !turnActive
+            } else {
+                secondCardSelected = cardSelected
+                actionGameList[actionGameList.indexOf(secondCardSelected)].founded = !actionGameList[actionGameList.indexOf(secondCardSelected)].founded
+                turnActive = !turnActive
+            }
+
+            if (firstCardSelected != null && secondCardSelected != null) {
+                _gamePaused.value = true
+                _pairFounded.value = firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (firstCardSelected!!.cardIndicator != secondCardSelected!!.cardIndicator) {
+                        actionGameList[actionGameList.indexOf(firstCardSelected)].founded = !actionGameList[actionGameList.indexOf(firstCardSelected)].founded
+                        actionGameList[actionGameList.indexOf(secondCardSelected)].founded = !actionGameList[actionGameList.indexOf(secondCardSelected)].founded
+                    }
+                    _gameList.value = actionGameList
+                    firstCardSelected = null
+                    secondCardSelected = null
+                    _gamePaused.value = false
+
+                    if (allCardsFounded(_gameList.value!!)) {
+                        _playerHasWon.value = true
+                        pauseTimer()
+                    }
+                }, 2000)
+            }
+        }
+    }
+
+    /**
+     * Old implementation of the action trigger (do not use, just keep it here to future comments)
+     */
     fun performAction(cardSelected: CR7Card) {
         viewModelScope.launch {
             if (turnActive) {

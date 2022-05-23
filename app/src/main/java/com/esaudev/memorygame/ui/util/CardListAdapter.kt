@@ -1,7 +1,12 @@
 package com.esaudev.memorygame.ui.util
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.esaudev.memorygame.R
@@ -40,18 +45,53 @@ class CardListAdapter(
 
             ivCard.setOnClickListener {
                 if (!item.founded) {
-                    onCardClickListener?.let { click ->
+
+                    val anim1 = ObjectAnimator.ofFloat(
+                        binding.ivCard,
+                        "scaleX",
+                        1f,
+                        0f
+                    )
+
+                    val anim2 = ObjectAnimator.ofFloat(
+                        binding.ivCard,
+                        "scaleX",
+                        0f,
+                        1f
+                    )
+
+                    anim1.interpolator = DecelerateInterpolator()
+                    anim2.interpolator = AccelerateInterpolator()
+
+                    anim1.addListener(object : AnimatorListenerAdapter(){
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                            binding.ivCard.setImageResource(item.image)
+                            anim2.start()
+                        }
+                    })
+
+                    onCardsClickListener?.let { click ->
                         click(item)
+
+                        if (counter<3) {
+                            anim1.start()
+                        }
                     }
                 }
             }
         }
     }
 
-    private var onCardClickListener: ((CR7Card) -> Unit)? = null
+    /**
+     * This is a helper value, it indicates the number of cards selected, thanks to that we
+     * just perform the reveal animation for the first and second card selected.
+     */
+    var counter = 0
+    var onCardsClickListener: ((CR7Card) -> Unit)? = null
 
     fun setOnCardClickListener(listener: (CR7Card) -> Unit) {
-        onCardClickListener = listener
+        onCardsClickListener = listener
     }
 
 }
