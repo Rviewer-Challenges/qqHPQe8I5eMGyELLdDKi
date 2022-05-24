@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esaudev.memorygame.databinding.ActivityMainBinding
@@ -13,6 +14,7 @@ import com.esaudev.memorygame.ui.components.GameLostDialogFragment
 import com.esaudev.memorygame.ui.components.GameWonDialogFragment
 import com.esaudev.memorygame.ui.util.CardListAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -97,11 +99,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-        viewModel.pairFounded.observe(this) { pairFounded ->
-            if (pairFounded) {
-                Toast.makeText(this, "¡Encontraste un par SIUUUU!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "¡Sigue buscando!", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launchWhenStarted {
+            viewModel.eventFlow.collect { event ->
+                when(event) {
+                    is MainViewModel.GameEvent.TurnFinished -> {
+                        if (event.pairFounded) {
+                            Toast.makeText(this@MainActivity, "¡Encontraste un par SIUUUU!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@MainActivity, "¡Sigue buscando!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
     }

@@ -11,6 +11,8 @@ import com.esaudev.memorygame.R
 import com.esaudev.memorygame.StringUtils
 import com.esaudev.memorygame.model.CR7Card
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,10 +26,6 @@ class MainViewModel @Inject constructor(): ViewModel() {
     private val _gamePaused : MutableLiveData<Boolean> = MutableLiveData()
     val gamePaused : LiveData<Boolean>
         get() = _gamePaused
-
-    private val _pairFounded : MutableLiveData<Boolean> = MutableLiveData()
-    val pairFounded : LiveData<Boolean>
-        get() = _pairFounded
 
     private var _countDownTime = MutableLiveData<String>()
     val countDownTime: LiveData<String> = _countDownTime
@@ -152,7 +150,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
             if (firstCardSelected != null && secondCardSelected != null) {
                 _gamePaused.value = true
-                _pairFounded.value = firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator
+                triggerEvent(firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator)
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (firstCardSelected!!.cardIndicator != secondCardSelected!!.cardIndicator) {
                         actionGameList[actionGameList.indexOf(firstCardSelected)].founded = !actionGameList[actionGameList.indexOf(firstCardSelected)].founded
@@ -170,6 +168,20 @@ class MainViewModel @Inject constructor(): ViewModel() {
                 }, 2000)
             }
         }
+    }
+
+    /**
+     * Events for UI
+     */
+    sealed class GameEvent {
+        data class TurnFinished(val pairFounded: Boolean): GameEvent()
+    }
+
+    private val eventChannel = Channel<GameEvent>()
+    val eventFlow = eventChannel.receiveAsFlow()
+
+    private fun triggerEvent(pairFounded: Boolean) = viewModelScope.launch {
+        eventChannel.send(GameEvent.TurnFinished(pairFounded))
     }
 
     /**
@@ -191,7 +203,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
 
             if (firstCardSelected != null && secondCardSelected != null) {
                 _gamePaused.value = true
-                _pairFounded.value = firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator
+                triggerEvent(firstCardSelected!!.cardIndicator == secondCardSelected!!.cardIndicator)
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (firstCardSelected!!.cardIndicator != secondCardSelected!!.cardIndicator) {
                         actionGameList[actionGameList.indexOf(firstCardSelected)].founded = false
