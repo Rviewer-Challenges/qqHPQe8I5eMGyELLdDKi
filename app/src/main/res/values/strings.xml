@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MemoryGame</string>
+    
+    <string name="game_won_title">Has ganado</string>
+    <string name="game_lost_title">Has perdido</string>
+    <string name="game_option_restart">Reiniciar</string>
+</resources>
