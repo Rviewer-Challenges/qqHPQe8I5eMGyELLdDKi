@@ -1,6 +1,6 @@
 # Memory Game
 
-[APK](https://drive.google.com/file/d/1cbCehMb_2XaQbSX4UUbAaGvNRFH8tDnB/view?usp=sharing).
+[Descarga el APK](https://drive.google.com/file/d/1cbCehMb_2XaQbSX4UUbAaGvNRFH8tDnB/view?usp=sharing).
 
 Who hasn't played card games at some point? From a very young age to a beer night with friends, right?
 
